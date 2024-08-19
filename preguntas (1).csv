@@ -1,0 +1,90 @@
+# Camino,Camino,# Pregunta,Pregunta,Fin
+1,Asignación Universal por Hijo (AUH),1,¿Podrías preparar la documentación?,1
+2,Respiratoria,1,¿Tenés fiebre mayor a 38º?,1
+2,Respiratoria,2,¿Tenés tos con sangre?,1
+2,Respiratoria,3,¿Tenes tos?,0
+2,Respiratoria,4,¿Tenes tos seca?,0
+2,Respiratoria,5,¿Hace más de 10 días que te sentis así?,0
+2,Respiratoria,6,¿Tenes serios problemas para respirar?,0
+2,Respiratoria,7,¿Te duele mucho la garganta o perdiste la voz?,0
+3,Cardiovascular,1,¿Te duele el pecho o el brazo izquierdo?,0
+3,Cardiovascular,2,¿Sientes palpitaciones rápidas o irregulares?,0
+3,Cardiovascular,3,¿Te falta el aire con el esfuerzo o en reposo?,0
+3,Cardiovascular,4,¿Has tenido algún desmayo o mareo reciente?,0
+3,Cardiovascular,5,¿Has notado hinchazón en las piernas o tobillos?,0
+4,Gastroenterológica,1,¿Tienes dolor abdominal? ¿Dónde te duele?,0
+4,Gastroenterológica,2,¿Tienes náuseas o vómitos?,0
+4,Gastroenterológica,3,¿Has notado sangre en tus heces o vómitos?,0
+4,Gastroenterológica,4,¿Tienes diarrea? ¿Cuánto tiempo lleva?,0
+4,Gastroenterológica,5,¿Has tenido problemas para tragar o sentir que la comida se queda atascada?,0
+4,Gastroenterológica,6,¿Has perdido peso recientemente sin razón aparente?,0
+4,Gastroenterológica,7,¿Sientes hinchazón o distensión abdominal?,0
+4,Gastroenterológica,8,¿Tienes acidez estomacal o sensación de ardor en el pecho?,0
+4,Gastroenterológica,9,¿Has tenido cambios en tu apetito o hábitos alimenticios?,0
+4,Gastroenterológica,10,"¿Tienes problemas para ir al baño, como estreñimiento o dificultad para evacuar?",0
+5,Neurologica,1,¿Has tenido dolores de cabeza fuertes o diferentes a los habituales?,0
+5,Neurologica,2,¿Has notado debilidad o entumecimiento en alguna parte de tu cuerpo?,0
+5,Neurologica,3,¿Has tenido alguna convulsión?,0
+5,Neurologica,4,¿Tienes dificultad para hablar o entender a los demás?,0
+5,Neurologica,5,¿Has notado cambios en tu visión o pérdida de la vista?,0
+5,Neurologica,6,¿Has tenido problemas para coordinar tus movimientos o caminar?,0
+5,Neurologica,7,¿Has experimentado mareos o vértigo?,0
+5,Neurologica,8,"¿Has notado cambios en tu estado de ánimo, como depresión o ansiedad súbita?",0
+5,Neurologica,9,¿Has tenido problemas para recordar cosas recientes o eventos importantes?,0
+5,Neurologica,10,¿Has tenido desmayos o pérdida del conocimiento?,0
+6,Pediatrica,1,¿El niño/a tiene fiebre? ¿Desde cuándo?,0
+6,Pediatrica,2,¿Está el niño/a comiendo o bebiendo bien?,0
+6,Pediatrica,3,¿Tiene el niño/a alguna dificultad para respirar?,0
+6,Pediatrica,4,"¿Ha tenido el niño/a cambios en su comportamiento, como irritabilidad o somnolencia?",0
+6,Pediatrica,5,¿Ha notado alguna erupción o cambio en la piel del niño/a?,0
+6,Pediatrica,6,¿Ha tenido el niño/a vómitos o diarrea?,0
+6,Pediatrica,7,¿El niño/a ha estado tosiendo mucho o tiene congestión nasal?,0
+6,Pediatrica,8,¿El niño/a ha tenido convulsiones o temblores?,0
+6,Pediatrica,9,¿Ha notado que el niño/a tiene dolor en los oídos o está tocándose mucho los oídos?,0
+6,Pediatrica,10,¿El niño/a ha tenido problemas para dormir o está más inquieto/a de lo normal?,0
+7,Oftalmologica,1,¿Tienes dolor en los ojos?,0
+7,Oftalmologica,2,"¿Has notado cambios en tu visión, como visión borrosa, doble o pérdida de visión?",0
+7,Oftalmologica,3,¿Tienes enrojecimiento o secreción en los ojos?,0
+7,Oftalmologica,4,¿Te molesta la luz o sientes que te deslumbra (fotofobia)?,0
+7,Oftalmologica,5,¿Has tenido alguna lesión o golpe en los ojos recientemente?,0
+7,Oftalmologica,6,¿Sientes que tienes algo en el ojo que no puedes quitar (sensación de cuerpo extraño)?,0
+7,Oftalmologica,7,"¿Ves manchas, destellos de luz, o halos alrededor de las luces?",0
+7,Oftalmologica,8,"¿Tienes picazón, ardor, o sensación de cuerpo extraño en los ojos?",0
+7,Oftalmologica,9,¿Tus ojos están más secos o más llorosos de lo normal?,0
+7,Oftalmologica,10,¿Has notado que tus párpados están hinchados o caídos?,0
+7,Oftalmologica,11,¿Tienes visión en túnel (pérdida de la visión periférica)?,0
+7,Oftalmologica,12,¿Experimentas dolor de cabeza intenso junto con problemas en los ojos?,0
+7,Oftalmologica,13,¿Has tenido alguna cirugía ocular reciente?,0
+7,Oftalmologica,14,"¿Sientes que tu visión cambia repentinamente, empeorando o mejorando?",0
+7,Oftalmologica,15,"¿Tu ojo o párpado presenta alguna anomalía visible, como bultos o úlceras?",0
+8,Ginecologica,1,¿Tienes dolor abdominal o pélvico?,0
+8,Ginecologica,2,"¿Has notado sangrado vaginal anormal? (fuera del ciclo menstrual, sangrado excesivo, postmenopáusico)",0
+8,Ginecologica,3,¿Estás embarazada o crees que podrías estarlo?,0
+8,Ginecologica,4,"¿Tienes flujo vaginal inusual en cuanto a color, olor o cantidad?",0
+8,Ginecologica,5,¿Has experimentado dolor o molestias durante las relaciones sexuales?,0
+8,Ginecologica,6,¿Has tenido fiebre o escalofríos junto con síntomas ginecológicos?,0
+8,Ginecologica,7,¿Tienes dolor o ardor al orinar?,0
+8,Ginecologica,8,¿Has notado hinchazón o bultos en la zona genital?,0
+8,Ginecologica,9,¿Tienes antecedentes de enfermedades de transmisión sexual?,0
+8,Ginecologica,10,"¿Has notado cualquier cambio en tu ciclo menstrual, como retrasos, ciclos más cortos o más largos?",0
+8,Ginecologica,11,"¿Estás experimentando síntomas de menopausia, como sofocos, sudores nocturnos o sequedad vaginal?",0
+8,Ginecologica,12,¿Has tenido alguna cirugía ginecológica reciente?,0
+8,Ginecologica,13,"¿Tienes antecedentes de quistes ováricos, fibromas o endometriosis?",0
+8,Ginecologica,14,¿Sientes un dolor severo o agudo que empeora con el tiempo?,0
+8,Ginecologica,15,¿Has tenido pérdidas de conciencia o mareos junto con síntomas ginecológicos?,0
+9,Traumatológica,1,"¿Has sufrido algún golpe, caída o accidente recientemente?",0
+9,Traumatológica,2,"¿Tienes dolor en los huesos, articulaciones o músculos?",0
+9,Traumatológica,3,"¿Tienes hinchazón, hematomas o enrojecimiento en alguna parte del cuerpo?",0
+9,Traumatológica,4,¿Has perdido movilidad o fuerza en alguna parte del cuerpo?,0
+9,Traumatológica,5,¿Tienes heridas abiertas o cortaduras que no dejan de sangrar?,0
+9,Traumatológica,6,"¿Tienes deformidades visibles en alguna parte del cuerpo, como un brazo o pierna torcidos?",0
+9,Traumatológica,7,"¿Sientes adormecimiento, hormigueo o pérdida de sensación en alguna parte del cuerpo?",0
+9,Traumatológica,8,¿Sientes dolor o rigidez en el cuello o la espalda?,0
+9,Traumatológica,9,¿Has tenido dificultad para caminar o moverte después del incidente?,0
+9,Traumatológica,10,¿Experimentas dolor al respirar o sientes que no puedes llenar completamente tus pulmones?,0
+9,Traumatológica,11,¿Tienes antecedentes de fracturas o problemas óseos previos en la zona afectada?,0
+9,Traumatológica,12,¿Has notado algún cambio en el color o temperatura de la piel en la zona afectada?,0
+9,Traumatológica,13,"¿Tienes fiebre o signos de infección en la zona de una lesión (enrojecimiento, calor, pus)?",0
+9,Traumatológica,14,¿Tienes alguna prótesis o implante en la zona afectada?,0
+9,Traumatológica,15,¿Sientes dolor agudo que empeora al moverte o al aplicar presión?,0
+10,Otro,1,¿Podrías dirigirte a la guardia?,0
