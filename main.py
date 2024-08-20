@@ -38,90 +38,139 @@ model = "gpt-4"
 
 
 # Inside Out: Esta funcion tiene como objetivo hacer preguntas abiertas, definir un camino y profundizar utilizando preguntas cerradas y finalmente dar un plan de acción
+derivacion = 0
 
-#Lo primero que hago es darle a GPT contexto
-contexto = "Sos un prestigioso medico del Mayo Clinic y tu mejor amigo se siente mal. Vos:"
+# Cargo los archivos
+# Abre el archivo en modo lectura
+with open('contexto/contexto.txt', 'r') as archivo:
+    contexto = archivo.read()
+
+with open('contexto/pregunta_abierta.txt', 'r') as archivo:
+    pregunta_abierta = archivo.read()
+    
+df = pd.read_csv('contexto/preguntas.csv')
+defi = pd.read_csv('contexto/plan_de_accion.csv')
+
 
 #Continuo con definir la pregunta abierta (Inside)
-pregunta_abierta = "Hola, me contas que te anda pasando con lujo de detalle: "
 
-pregunta_abierta = input(pregunta_abierta)
-pregunta_abierta = "Amigo: " + pregunta_abierta
-conversation_history = [{"role": "system", "content": contexto + pregunta_abierta}]
-
+respuesta_abierta = "Amigo: " + input(pregunta_abierta)
+conversation_history = [{"role": "system", "content": contexto + pregunta_abierta+ ": "+ respuesta_abierta}]
 #result = ask_openai(conversation_history, temperature, model)
-mensaje_urgencia = "Con esta info podes determinar si tengo Escala de Severidad de Emergencias del 1 al 3 o hace falta hacer mas preguntas? Podrías por favor respondeme: //1 si tenes alguna sospecha de que sea ESI 1, 2 o 3// o //0 si no tenes ninguna sospecha//"
+mensaje_urgencia = "En base únicamente a la respuesta de mi amigo, necesitas hacerle más preguntas o ya podes concluir que tiene que hacerse alguna intervenciones medica. Respuestas: /0 si necesitas hacerle mas preguntas/, /1 si podes concluir que tiene que hacerse alguna intervenciones medica/, /Null si no entendes el mensaje de mi amigo/."
+
 conversation_history.append({"role": "user", "content": mensaje_urgencia})
 result = ask_openai(conversation_history, temperature, model)
 #print(result)
 
-if result != "1" and result != "0":
-    print("X - Andá rápido a la guardia del Hospital Zona Norte")
-    sys.exit()
+
 if result == "1":
-    print ("\nUrgencia - Andá rápido a la guardia del Hospital Zona Norte.")
+    mensaje_urgencia = "Podrias por favor contestarle con un mensaje formal oral que incluya respetando la siguiente estructura: 1) Nivel de urgencia; 2) Posible diagnostico; 3)Cuales intervenciones medicas le van a realizar;4)Que vaya al Hospital Zona Norte."
+    conversation_history.append({"role": "user", "content": mensaje_urgencia})
+    result = ask_openai(conversation_history, temperature, model)
+    print(("\n") + result)
     sys.exit()
 
-#En base a la pregunta abierta, califico en tipos de triage
-df = pd.read_csv('preguntas.csv')
-mis_preguntas = df.to_numpy()
-mis_triages = df[['# Camino', 'Camino']].drop_duplicates()
+elif (result != "1" and result != "0"):
+    # Solicitar más información
+    respuesta_adicional = input("\nProporciona más detalles de tu cuadro: ")
+    conversation_history.append({"role": "user", "content": "Amigo: " + respuesta_adicional})
+    conversation_history.append({"role": "user", "content": mensaje_urgencia})
 
-mensaje_def_triage = ", ".join([f"{row['# Camino']}. {row['Camino']}" for index, row in mis_triages.iterrows()])
+    # Segunda llamada a la API de OpenAI
+    result = ask_openai(conversation_history, temperature, model)
 
-mensaje_def_triage = "Basado únicamente en la respuesta del paciente, cual de estas guardaias estas 100% seguro de que corresponde derivarlo?: "+mensaje_def_triage+" En caso de no estar seguro mandalo a la 10. Serias tan amable de responderme solamente con numeros la guardia?"
-#print(mensaje_def_triage)
-conversation_history.append({"role": "user", "content": mensaje_def_triage})
-result = ask_openai(conversation_history, temperature, model)
-derivacion = int(result)
-#print(result)
+else:
+    #En base a la pregunta abierta, califico en tipos de triage
+    mis_preguntas = df.to_numpy()
+    mis_triages = df[['# Camino', 'Camino']].drop_duplicates()
 
-if derivacion != 2:
-    print("Esta guardia todavía no esta desarrollada")
-    sys.exit()
+    mensaje_def_triage = ", ".join([f"{row['# Camino']}. {row['Camino']}" for index, row in mis_triages.iterrows()])
+
+    mensaje_def_triage = "Basado únicamente en la respuesta del paciente, cual de estas guardaias estas 100% seguro de que corresponde derivarlo?: "+mensaje_def_triage+" En caso de no estar seguro mandalo a la 10. Serias tan amable de responderme solamente con numeros la guardia?"
+    #print(mensaje_def_triage)
+    conversation_history.append({"role": "user", "content": mensaje_def_triage})
+    result = ask_openai(conversation_history, temperature, model)
+    derivacion = int(result)
+    #print(derivacion)
+
+    #if derivacion != 2:
+    #    print("Andá a la guardia del Hospital Zona Norte")
+    #    sys.exit()
 
 
-#cantidad_caminos = df['# Camino'].nunique()
+
+
+cantidad_caminos = df['# Camino'].nunique()
 
 #En base a la respuesta armo un vector de respuestas y arranco a completarlo preguntandole a GPT cuales estan contestadas en la respuesta abierta
 
-# Asumiendo que 'Pregunta' es la columna que contiene las preguntas
+# Filtrar el DataFrame para obtener el camino elegido
 filtered_data = df[df['# Camino'] == derivacion]
-#print(filtered_data)
+
+# Verificar si el DataFrame filtrado no está vacío
+if not filtered_data.empty:
+    # Extraer el nombre del camino elegido
+    camino_elegido = filtered_data['Camino'].iloc[0]
+    # Imprimir el camino elegido
+    print("\nTu padecimiento es", camino_elegido + ". \nPor favor contestame las siguientes preguntas:")
+else:
+    print("No se encontró un camino correspondiente para la derivación:", derivacion)
+    sys.exit()
 
 # Extraer el número de pregunta y la pregunta
+extracted_questions_numerers = filtered_data[['# Pregunta']]
 extracted_questions = filtered_data[['# Pregunta', 'Pregunta']]
 
 # Convertir las columnas a listas primero
 preguntas_lista = "\n".join(f"{row['# Pregunta']} {row['Pregunta']}" for _, row in extracted_questions.iterrows())
 #print(preguntas_lista)
 
+preguntas_lista_numeros = "\n".join(f"{row['# Pregunta']}" for _, row in extracted_questions.iterrows())
 
+#print(preguntas_lista_numeros)
 
 # Ahora puedes imprimir la lista de preguntas sin el # Camino ni el Camino
 
 mensaje_def_triage = (
-    "Basado en la respuesta del paciente, ¿cuáles de estas preguntas estás 100% seguro que tienen una respuesta?\n"
+    "¿Cuáles de estas preguntas estás completamente seguro que tienen una respuesta explicita positiva o negativa? Basadas únicamente en el texto del paciente.\n"
     + preguntas_lista +
-    "\n¿Si ninguna tiene respuesta, podrias responder espacio en blanco?"
+    "\nPodrías darme la lista separada con una coma y si ninguna tiene respuesta por favor un 0"
 )
 #print(mensaje_def_triage)
 
 conversation_history.append({"role": "user", "content": mensaje_def_triage})
 result = ask_openai(conversation_history, temperature, model) 
-#print(result)
+#print (result)
+
+elementos = result.split(',')
+
+if result == "0":
+    print("")
+    #print("Vector Vacio")
+elif all(elemento.strip().isdigit() and 1 <= int(elemento.strip()) <= len(preguntas_lista_numeros) for elemento in elementos):
+    print("")
+    #print("Vector Lleno")
+else:
+    print("Fin de fiesta")
+    sys.exit()
+
 
 #mensaje_completo = f"{mensaje_def_triage}\n{preguntas_lista}"
-mensaje_completo = "Podrías contestarme separado por comas y ordenado por cada una de las preguntas: 1 para las respuestas positivas, 0 para las respuestas negativas y Null para las que no estan explicitamente"
+mensaje_completo = "Podrías contestarme separado por comas y ordenado por cada una de las preguntas: Respuestas: /1 para las respuestas positivas/, /0 para las respuestas negativas/ y /Null para las que no tengas suficiente información por favor/"
 #print(mensaje_completo)
-
-
 conversation_history.append({"role": "user", "content": mensaje_completo})
 result = ask_openai(conversation_history, temperature, model) 
+#print(result)
+
+
 
 #String con el status de cada pregunta 
 mis_respuestas = result.split(',')
 #print(mis_respuestas)
+
+#Chequeo si es un vector binario
+
 
 # Verificar que index esté dentro del rango de extracted_questions antes de acceder
 for index, respuesta in enumerate(mis_respuestas):
@@ -130,103 +179,114 @@ for index, respuesta in enumerate(mis_respuestas):
             # Preguntar al usuario por la pregunta correspondiente
             pregunta_cerrada = extracted_questions.iloc[index]['Pregunta']
             respuesta_usuario_cerrada = input(f"{pregunta_cerrada}: ")
+            if respuesta_usuario_cerrada in "si":
+                mis_respuestas[index] = 1
+                #print("Yeah baby")
+            elif respuesta_usuario_cerrada in "no":
+                mis_respuestas[index] = 0
+                #print("Noa baby")
+            else:
+                conversation_history.append({"role": "user", "content": pregunta_cerrada + respuesta_usuario_cerrada + "Mi amigo contesto positivamente, en caso de que haya contestado positivo contestarme con el digito 1 caso negativo el digito 0 y en cualquier otro caso Null?"})
+                #print(conversation_history)
+                result = ask_openai(conversation_history, temperature, model)
+                
+                if result !="0" and result !="1":
+                    #print(result)
+                    respuesta_usuario_cerrada = input("¿Podrias darme mas contexto?")
+                    conversation_history.append({"role": "user", "content": pregunta_cerrada + respuesta_usuario_cerrada + "Mi amigo contesto positivamente, en caso de que haya contestado positivo contestarme con el digito 1 caso negativo el digito 0 y en cualquier otro caso Null?"})
+                    #print(conversation_history)
+                    result = ask_openai(conversation_history, temperature, model)
+                    if result !="0" and result !="1":
+                        print("Disculpame pero no te entiendo, andá a la guardia del Hospital Zona Norte de San Nicolás")
+                        
+                        sys.exit()
+                    else:
+                        mis_respuestas[index] = int(result)
+                else:
+                    mis_respuestas[index] = int(result)
+
         else:
             print(f"Andá rápido a la guardia del Hospital Zona Norte.")
             sys.exit()
-
-        conversation_history = [{"role": "system", "content": pregunta_cerrada + respuesta_usuario_cerrada + "Mi amigo contesto positivamente, en caso de que haya contestado positivo contestarme con el digito 1 caso contrario el digito 0?"}]
-        result = ask_openai(conversation_history, temperature, model)
-        mis_respuestas[index] = result
-print(mis_respuestas)    
-
-mis_respuestas[index] = result.strip()
-#print(mis_respuestas)
-
         
         
             
+#print(mis_respuestas)
+# Cálculo de la magnitud (norma) del vector
+magnitud = len(mis_respuestas)
+
+#print(f"La magnitud del vector es: {magnitud}")
+
+
 #Busco la opinion y el plan de accion para una combinatoria de respuestas        
 
-    
-# Cargar el archivo CSV
-defi = pd.read_csv('plan_de_accion.csv')  # Asegúrate de especificar la ruta correcta al archivo CSV
+# Convertir la cadena de respuestas en una lista de caracteres
+respuestas_normalizadas = list(map(str, mis_respuestas))
+#print(respuestas_normalizadas)
+
+# Crear la variable respuestas_aux y sumar los caracteres de cada uno de los elementos
+respuestas_aux = ''.join(respuestas_normalizadas)
+
+# Imprimir el resultado
+#print(f"respuestas_aux: {respuestas_aux}")
+
+'''# Crear una nueva lista para almacenar las respuestas convertidas a enteros
+respuestas_convertidas = []
+
+# Recorrer la lista y convertir cada respuesta
+respuestas_string = ""
+for i in range(len(respuestas_normalizadas)):
+    respuestas_string = respuestas_string + respuestas_convertidas[i] 
+
+# Imprimir las respuestas convertidas
+print(respuestas_convertidas)
+'''
+'''
 
 respuestas_normalizadas = ''.join(map(str, mis_respuestas)) #Normalizacion de respuestas
-fila = defi[(defi.iloc[:, :7].astype(str).agg(''.join, axis=1) == respuestas_normalizadas)] # BuscarH
+print(respuestas_normalizadas)
+
+for i in range(len(respuestas_normalizadas)):
+    respuestas_normalizadas[i] = int(respuestas_normalizadas[i])
+
+print(mis_respuestas)
+'''
+
+
+'''
+fila = defi[(defi.iloc[:, :len(respuestas_normalizadas)].astype(str).agg(''.join, axis=1) == respuestas_convertidas)] # BuscarH
 opinion = fila['OPINION'].values[0] if not fila.empty else "No se encontró la opinión."
-#print(f"Opinión: {opinion}")
+'''
+respuestas_aux = respuestas_aux.replace(" ", "")
 
-protocolo = fila['PROTOCOLO'].values[0] if not fila.empty else "No se encontró la opinión."
-print(f"\nTe recomiendo que sigas el siguiente plan de acción: {protocolo}")
+# Realizar la búsqueda en el DataFrame defi utilizando 'loc'
+fila = defi.loc[defi['AUX'] == int(respuestas_aux)]  # Asegúrate de que 'AUX' y 'respuestas_aux' estén en el mismo tipo (int en este caso)
+#print(fila)
+
+# Obtener el valor de la columna 'OPINION'
+opinion = fila['OPINION'].values[0] if not fila.empty else "No se encontró la opinión."
+
+# Imprimir el resultado
+#print(f"Opinión encontrada: {opinion}")
+
+if opinion == "DERIVACION":
+    print("\n"+ (opinion))
+    mensaje_urgencia = "Podrias por favor contestarle a mi amigo con un mensaje a mi amigo con la siguiente estructura: Te voy a contar como estas: 1) Nivel de urgencia; 2) Posible diagnostico; 3) Plan de accion/intervenciones medicas a realizar; 4) Necesidad de ir al Hospital; recordar que el hospital asignado es el Hospital Zona Norte de San Nicolás, de ser necesario."
+    
+    conversation_history.append({"role": "user", "content": mensaje_urgencia})
+    result = ask_openai(conversation_history, temperature, model)
+    print(result)
+    #print("Andá a la guardia del Hospital Zona Norte.")
+    sys.exit()
+
+if opinion != "DERIVACION":
+    print("\n"+ (opinion))
+    mensaje_urgencia = "Podrias por favor contestarle a mi amigo con un mensaje a mi amigo con la siguiente estructura: Te voy a contar como estas: 1) Nivel de urgencia; 2) Posible diagnostico; 3) Plan de accion/intervenciones medicas a realizar; 4) Necesidad de ir al Hospital; recordar que el hospital asignado es el Hospital Zona Norte de San Nicolás, de ser necesario."
+    conversation_history.append({"role": "user", "content": mensaje_urgencia})
+    result = ask_openai(conversation_history, temperature, model)
+    print(("\n") + result)
+    protocolo = fila['PROTOCOLO'].values[0] if not fila.empty else "No se encontró la opinión."
+#print(f"\nTe recomiendo que sigas el siguiente plan de acción: {protocolo}")
+#print("Andá a la guardia del Hospital Zona Norte.")
+
 sys.exit()
-
-
-
-'''
-if not result.empty:
-    opinion_recomendada = result['OPINION'].values[0]
-    plan_accion_recomendado = result['PROTOCOLO'].values[0]
-    print(f"Opinión recomendada: {opinion_recomendada}")
-    print(f"Plan de acción recomendado: {plan_accion_recomendado}")
-else:
-    print("No se encontró un protocolo específico para esta combinación de respuestas.")
-'''
-
-
-
-
-
-'''
-
-conversation_history.append({"role": "user", "content": "me pasarías el numero de tipo de triage"})
-
-
-if "0" in result:
-    mis_triages[0] = "AUH"
-    print(mis_triages[0])
-    sys.exit()
-if "1" in result:
-    mis_triages[1] = "Bienvenido a la guardia respiratoria"
-    print(mis_triages[1])
-if "2" in result:
-    mis_triages[2] = "Guardia no respiratoria"
-    print(mis_triages[2])
-    sys.exit()
-
-# Triage respiratorio
-conversation_history.append({"role": "user", "content": "Basado únicamente en mi mensaje, cuales de estas preguntas estas 100% seguro que tienen una respuesta explicita: 0.⁠ ⁠Tenes fiebre mayor a 38? 1.⁠ ⁠Tenes tos con sangre? 2. ⁠Tenes tos seca? 3.⁠ ⁠Tenes dolor de garganta? 4.⁠ ⁠Tenes problemas para hablar? 5. Hace mas de 10 días que te sentis asi?"})
-
-
-conversation_history.append({"role": "user", "content": "me pasarías unicamente los numeros de preguntas sin respuesta explicita separados por comas?"})
-result = ask_openai(conversation_history, temperature, model)
-preguntas_sin_respuesta = result
-print(preguntas_sin_respuesta)
-
-#Pregunto las preguntas que no respondió explicitamente
-if "0" in preguntas_sin_respuesta:
-    respuesta_0= input("⁠Tenes fiebre mayor a 38?: ")
-    conversation_history.append({"role": "user", "content": "Tenes fiebre mayor a 38?: " + respuesta_1 + "Basado únicamente en mi mensaje, podrías estar 100% seguro que tienen una respuesta explicita: para ? Tenes fiebre mayor a 38?"})
-    conversation_history.append({"role": "user", "content":"Podrías escribir 1 si la respuesta fue positiva o 0 si fue negativa"})
-    result = ask_openai(conversation_history, temperature, model)
-    i = 1
-    mis_answers [0] = result
-    print(mis_answers [0])
-
-if "2" in preguntas_sin_respuesta:
-    respuesta_2 = input("2.⁠ ⁠Tenes tos con sangre?")
-    conversation_history.append({"role": "user", "content": "1.⁠ ⁠Tenes fiebre mayor a 38?: " + respuesta_2 + "Basado únicamente en mi mensaje, podrías estar 100% seguro que tienen una respuesta explicita: para ? 2.⁠ ⁠Tenes tos con sangre?"})
-    conversation_history.append({"role": "user", "content":"Podrías escribir 1 si la respuesta fue positiva o 0 si fue negativa"})
-    result = ask_openai(conversation_history, temperature, model)
-    mis_answers [2] = result
-    print(mis_answers [1])
-
-
-if "3" in preguntas_sin_respuesta:
-    respuesta_3 = input("3. ⁠Tenes tos seca?")
-if "4" in preguntas_sin_respuesta:
-    respuesta_4 = input("4.⁠ ⁠Tenes dolor de garganta?")
-if "5" in preguntas_sin_respuesta:
-    respuesta_5 = input("5.⁠ ⁠Tenes problemas para hablar? ")
-if "6" in preguntas_sin_respuesta:
-    respuesta_6 = input("6. Hace mas de 10 días que te sentis asi?")
-    '''
